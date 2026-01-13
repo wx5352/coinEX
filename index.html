@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinEx - 合约交易</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+        .sidebar-item:hover {
+            background-color: #f0f7ff;
+            color: #1890ff;
+        }
+        .sidebar-item.active {
+            color: #1890ff;
+            background-color: #e6f7ff;
+            border-right: 3px solid #1890ff;
+        }
+        .ant-table-thead th {
+            background-color: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 16px;
+            font-weight: 500;
+            text-align: left;
+            color: rgba(0, 0, 0, 0.85);
+        }
+        .ant-table-tbody td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            color: rgba(0, 0, 0, 0.65);
+        }
+        .tab-active {
+            background-color: #52c41a;
+            color: white;
+        }
+        /* Added for resizable headers and horizontal display */
+        th {
+            white-space: nowrap;
+            position: relative;
+        }
+        th div.resizer {
+            display: inline-block;
+            resize: horizontal;
+            overflow: hidden;
+            vertical-align: bottom;
+            min-width: 60px;
+            padding-right: 8px;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-right flex-shrink-0 flex flex-col border-r">
+        <div class="p-4 flex items-center space-x-2 border-b">
+            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xl font-bold">CoinEx</span>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-4">
+            <div class="px-4 py-2 text-gray-500 flex items-center space-x-2 sidebar-item cursor-pointer">
+                <i data-lucide="home" class="w-4 h-4"></i>
+                <span>首页</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 ml-auto"></i>
+            </div>
+            
+            <div class="px-4 py-2 text-gray-500 flex items-center space-x-2 sidebar-item cursor-pointer">
+                <i data-lucide="layers" class="w-4 h-4"></i>
+                <span>内容管理</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 ml-auto"></i>
+            </div>
+
+            <div class="px-4 py-2 text-gray-500 flex items-center space-x-2 sidebar-item cursor-pointer">
+                <i data-lucide="users" class="w-4 h-4"></i>
+                <span>会员管理</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 ml-auto"></i>
+            </div>
+
+            <div class="px-4 py-2 text-gray-500 flex items-center space-x-2 sidebar-item cursor-pointer">
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+                <span>财务管理</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 ml-auto"></i>
+            </div>
+
+            <div class="mt-2 bg-gray-50">
+                <div class="px-4 py-3 text-green-600 flex items-center space-x-2 sidebar-item cursor-pointer font-medium border-l-4 border-green-500 bg-white">
+                    <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                    <span>交易订单</span>
+                    <i data-lucide="chevron-up" class="w-4 h-4 ml-auto"></i>
+                </div>
+                <div class="pl-12 py-2 text-gray-600 hover:text-blue-500 cursor-pointer text-sm">开仓记录</div>
+                <div class="pl-12 py-2 text-gray-600 hover:text-blue-500 cursor-pointer text-sm">现货交易</div>
+                <div class="pl-12 py-2 text-green-500 bg-gray-100 cursor-pointer text-sm font-medium border-r-4 border-green-500">合约交易</div>
+                <div class="pl-12 py-2 text-gray-600 hover:text-blue-500 cursor-pointer text-sm">期权交易</div>
+                <div class="pl-12 py-2 text-gray-600 hover:text-blue-500 cursor-pointer text-sm">理财申购</div>
+                <div class="pl-12 py-2 text-gray-600 hover:text-blue-500 cursor-pointer text-sm">快捷买币</div>
+            </div>
+
+            <div class="px-4 py-2 text-gray-500 flex items-center space-x-2 sidebar-item cursor-pointer mt-2">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+                <span>交易设置</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 ml-auto"></i>
+            </div>
+
+            <div class="px-4 py-2 text-gray-500 flex items-center space-x-2 sidebar-item cursor-pointer">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                <span>交易对</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 ml-auto"></i>
+            </div>
+
+            <div class="px-4 py-2 text-gray-500 flex items-center space-x-2 sidebar-item cursor-pointer">
+                <i data-lucide="mail" class="w-4 h-4"></i>
+                <span>消息管理</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 ml-auto"></i>
+            </div>
+
+            <div class="px-4 py-2 text-gray-500 flex items-center space-x-2 sidebar-item cursor-pointer">
+                <i data-lucide="trending-up" class="w-4 h-4"></i>
+                <span>策略交易</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 ml-auto"></i>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0">
+        <!-- Header -->
+        <header class="h-16 bg-white border-b flex items-center justify-between px-6">
+            <div class="flex items-center text-sm text-gray-500 space-x-2">
+                <span>仪表盘</span>
+                <span>/</span>
+                <span class="text-gray-800 font-medium">合约交易</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <i data-lucide="search" class="w-5 h-5 text-gray-400 cursor-pointer"></i>
+                <i data-lucide="maximize" class="w-5 h-5 text-gray-400 cursor-pointer"></i>
+                <i data-lucide="bell" class="w-5 h-5 text-gray-400 cursor-pointer relative">
+                    <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                </i>
+                <i data-lucide="settings" class="w-5 h-5 text-gray-400 cursor-pointer"></i>
+                <div class="flex items-center space-x-2 ml-4">
+                    <div class="w-8 h-8 rounded-full bg-gray-200"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="bg-[#f0f2f5] px-4 pt-4 flex space-x-1">
+            <div class="px-4 py-1.5 bg-white text-gray-600 rounded-t border-t border-l border-r text-sm cursor-pointer">仪表盘</div>
+            <div class="px-4 py-1.5 bg-green-500 text-white rounded-t text-sm cursor-pointer flex items-center space-x-1">
+                <span>合约交易</span>
+                <i data-lucide="x" class="w-3 h-3"></i>
+            </div>
+            <div class="px-4 py-1.5 bg-white text-gray-600 rounded-t border-t border-l border-r text-sm cursor-pointer flex items-center space-x-1">
+                <span>合约操作列表</span>
+                <i data-lucide="x" class="w-3 h-3"></i>
+            </div>
+            <div class="px-4 py-1.5 bg-white text-gray-600 rounded-t border-t border-l border-r text-sm cursor-pointer flex items-center space-x-1">
+                <span>现货交易</span>
+                <i data-lucide="x" class="w-3 h-3"></i>
+            </div>
+            <div class="px-4 py-1.5 bg-white text-gray-600 rounded-t border-t border-l border-r text-sm cursor-pointer flex items-center space-x-1">
+                <span>期权交易</span>
+                <i data-lucide="x" class="w-3 h-3"></i>
+            </div>
+        </div>
+
+        <!-- Scrollable Area -->
+        <div class="flex-1 overflow-auto p-4 space-y-4">
+            <!-- Filters -->
+            <div class="bg-white p-6 rounded shadow-sm relative">
+                <div id="filter-content" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4 overflow-hidden transition-all duration-300">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-600 w-16">用户</label>
+                        <input type="text" placeholder="请输入昵称/手机号/邮箱" class="flex-1 border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400">
+                    </div>
+                    <div class="flex items-center space-x-2 lg:col-span-2">
+                        <label class="text-sm text-gray-600 w-16">时间</label>
+                        <div class="flex-1 flex space-x-2">
+                            <select id="quick-time" class="border rounded px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400 bg-white text-gray-500 min-w-[110px]">
+                                <option>快速选择</option>
+                                <option>最近1天</option>
+                                <option selected>最近1个月</option>
+                                <option>最近半年</option>
+                                <option>最近1年</option>
+                            </select>
+                            <div class="flex-1 flex border rounded overflow-hidden bg-white">
+                                <input type="text" placeholder="请选择开始日期" class="w-1/2 px-3 py-1.5 text-sm focus:outline-none">
+                                <div class="border-l px-2 flex items-center text-gray-400">-</div>
+                                <input type="text" placeholder="请选择结束日期" class="w-1/2 px-3 py-1.5 text-sm focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-600 w-16">币种</label>
+                        <select class="flex-1 border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400 text-gray-400 bg-white">
+                            <option>请选择币种</option>
+                            <option>BTC</option>
+                            <option>ETH</option>
+                            <option>USDT</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-600 w-16 text-right">交易对</label>
+                        <select class="flex-1 border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400 text-gray-400 bg-white">
+                            <option>请选择交易对</option>
+                            <option>BTC/USDT</option>
+                            <option>ETH/USDT</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-600 w-16">交易状态</label>
+                        <select class="flex-1 border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400 text-gray-400 bg-white">
+                            <option>请选择交易状态</option>
+                            <option>持仓中</option>
+                            <option>已平仓</option>
+                            <option>已撤单</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-600 w-16">经纪人</label>
+                        <input type="text" value="UID721023" placeholder="请输入经纪人id" class="flex-1 border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400">
+                    </div>
+                </div>
+                
+                <div class="flex justify-center mt-6 space-x-4">
+                    <button class="bg-green-500 text-white px-6 py-1.5 rounded flex items-center space-x-1 hover:bg-green-600 transition shadow-sm">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        <span>搜索</span>
+                    </button>
+                    <button class="bg-white border text-gray-600 px-6 py-1.5 rounded flex items-center space-x-1 hover:bg-gray-50 transition shadow-sm">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>重置</span>
+                    </button>
+                    <button id="toggle-filter" class="text-blue-500 text-sm flex items-center hover:text-blue-600 transition ml-4">
+                        <span id="toggle-text">收起</span>
+                        <i id="toggle-icon" data-lucide="chevron-up" class="w-4 h-4 ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Actions -->
+            <div class="flex items-center justify-between">
+                <button class="bg-red-500 text-white px-4 py-1.5 rounded flex items-center space-x-1 hover:bg-red-600 transition shadow-sm">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    <span>删除</span>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="rotate-cw" class="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"></i>
+                    <i data-lucide="search" class="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"></i>
+                    <i data-lucide="printer" class="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"></i>
+                </div>
+            </div>
+
+            <!-- Table Card -->
+            <div class="bg-white rounded shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm text-left border-collapse">
+                        <thead class="bg-[#fafafa] border-b">
+                            <tr>
+                                <th class="p-4 w-10 text-center"><input type="checkbox" class="rounded border-gray-300"></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">订单号</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">用户昵称</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">经纪人</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">用户手机</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">币种</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">交易对</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">交易类型</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">仓位倍数</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">下单方式</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">开仓头寸</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">交易数量</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">仓位类型</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">保证金</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">持仓均价</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">已平仓价</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">盈亏</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">交易状态</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">交易手续费</div></th>
+                                <th class="p-4 font-medium text-gray-700"><div class="resizer">资金费</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-gray-100">
+                            <!-- Rows will be generated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="p-4 flex items-center justify-between border-t text-sm text-gray-500">
+                    <div>共 7210 条</div>
+                    <div id="pagination" class="flex items-center space-x-2">
+                        <button class="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50">
+                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="changePage(1)" class="page-btn w-8 h-8 flex items-center justify-center border rounded bg-green-50 text-green-600 font-medium border-green-500">1</button>
+                        <button onclick="changePage(2)" class="page-btn w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50">2</button>
+                        <button onclick="changePage(3)" class="page-btn w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50">3</button>
+                        <button class="page-btn w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50">4</button>
+                        <span>...</span>
+                        <button class="page-btn w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50">361</button>
+                        <button class="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-50">
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                        <div class="flex items-center ml-4 space-x-2">
+                            <select class="border rounded px-2 py-1 bg-white">
+                                <option selected>20 条/页</option>
+                                <option>50 条/页</option>
+                                <option>100 条/页</option>
+                            </select>
+                            <span>前往</span>
+                            <input type="text" class="w-12 border rounded px-2 py-1 text-center" id="page-jump" value="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        let currentPage = 1;
+
+        function changePage(page) {
+            currentPage = page;
+            // Update UI
+            const buttons = document.querySelectorAll('.page-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-green-50', 'text-green-600', 'font-medium', 'border-green-500');
+                btn.classList.add('hover:bg-gray-50');
+                if (btn.innerText == page) {
+                    btn.classList.add('bg-green-50', 'text-green-600', 'font-medium', 'border-green-500');
+                    btn.classList.remove('hover:bg-gray-50');
+                }
+            });
+            document.getElementById('page-jump').value = page;
+            initTable(page);
+        }
+
+        // Toggle Filter Logic
+        const toggleBtn = document.getElementById('toggle-filter');
+        const filterContent = document.getElementById('filter-content');
+        const toggleText = document.getElementById('toggle-text');
+        const toggleIcon = document.getElementById('toggle-icon');
+        let isCollapsed = false;
+
+        toggleBtn.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            if (isCollapsed) {
+                filterContent.style.maxHeight = '0px';
+                filterContent.style.marginTop = '0px';
+                filterContent.style.opacity = '0';
+                toggleText.innerText = '展开';
+                toggleIcon.setAttribute('data-lucide', 'chevron-down');
+            } else {
+                filterContent.style.maxHeight = '500px'; // Sufficient height
+                filterContent.style.opacity = '1';
+                toggleText.innerText = '收起';
+                toggleIcon.setAttribute('data-lucide', 'chevron-up');
+            }
+            lucide.createIcons(); // Refresh icon
+        });
+
+        // Data Generation Logic
+        async function initTable(page = 1) {
+            // Set default dates for "Last Month"
+            const end = new Date();
+            const start = new Date();
+            start.setMonth(start.getMonth() - 1);
+            
+            if (page === 1) {
+                document.querySelectorAll('input[placeholder="请选择开始日期"]')[0].value = start.toISOString().split('T')[0];
+                document.querySelectorAll('input[placeholder="请选择结束日期"]')[0].value = end.toISOString().split('T')[0];
+            }
+
+            const pairs = ['BTC/USDT', 'ETH/USDT', 'TRX/USDT', 'DOGE/USDT'];
+            const nicknames = ['币圈大魔王', '牛市捕手', '韭菜收割机', '量化大师', '空军总司令', '多头先锋', '财富自由之路', '梭哈老王', '潜伏者', '区块链信徒', '趋势跟踪者', '技术面大牛', '抄底专家', '高频玩家', '信仰持有者'];
+            const marginRange = [10000, 200000];
+            const leverageOptions = [5, 10, 20, 50];
+            
+            // Mock real prices (as of 2026-01-13)
+            const basePrices = {
+                'BTC/USDT': 98234.50,
+                'ETH/USDT': 3456.20,
+                'TRX/USDT': 0.245,
+                'DOGE/USDT': 0.421
+            };
+
+            const tbody = document.getElementById('table-body');
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+
+            // Seed based on page to keep data consistent but different per page
+            let html = '';
+            for (let i = 0; i < 20; i++) {
+                const seed = (page - 1) * 20 + i;
+                const pair = pairs[seed % pairs.length];
+                
+                const nickname = nicknames[(seed + 3) % nicknames.length];
+                const phone = '1' + (seed % 2 === 0 ? '3' : '8') + (seed % 9).toString() + (1000 + (seed * 123) % 8999).toString() + (1000 + (seed * 456) % 8999).toString();
+                const type = seed % 3 === 0 ? '开空' : '开多';
+                const leverage = leverageOptions[seed % leverageOptions.length];
+                const margin = marginRange[0] + (seed * 1111) % (marginRange[1] - marginRange[0]);
+                
+                // Realistic Price Logic
+                // 1. Calculate Entry Price with small variance
+                const entryPrice = basePrices[pair] * (1 + ((seed % 50) - 25) / 1000); 
+                
+                // 2. Calculate Position Size and Quantity
+                const positionSizeUSDT = margin * leverage;
+                const quantity = (positionSizeUSDT / entryPrice).toFixed(pair.includes('BTC') || pair.includes('ETH') ? 3 : 2);
+                
+                // 3. Generate Exit Price based on a realistic % move (e.g. -2% to +3%)
+                const movePercent = ((seed % 100) - 40) / 1000; // -4% to +6% move
+                const exitPrice = entryPrice * (1 + movePercent);
+                
+                // 4. Calculate PnL based on Long/Short type
+                // Long: (Exit - Entry) * Qty | Short: (Entry - Exit) * Qty
+                let pnlValue = 0;
+                if (type === '开多') {
+                    pnlValue = (exitPrice - entryPrice) * parseFloat(quantity);
+                } else {
+                    pnlValue = (entryPrice - exitPrice) * parseFloat(quantity);
+                }
+
+                // 5. Calculate Fees
+                const feeRate = 0.0005; 
+                const fee = (positionSizeUSDT * feeRate).toFixed(2);
+                
+                const fundingRate = (seed % 2 === 0 ? 0.0001 : -0.0001) * ((seed % 10) / 100);
+                const fundingFee = (positionSizeUSDT * fundingRate).toFixed(2);
+                
+                const createH = 8 + (seed % 8); 
+                const createM = (seed * 7) % 60;
+                const endH = createH + (seed % 4) + 1;
+                const endM = (seed * 13) % 60;
+
+                const priceDecimals = pair.includes('BTC') || pair.includes('ETH') ? 2 : 5;
+
+                const formatTime = (h, m, s) => `${todayStr} ${String(h % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+
+                html += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4 text-center"><input type="checkbox" class="rounded border-gray-300"></td>
+                        <td class="p-4 text-blue-500">${Math.floor(600000 + (seed * 789) % 300000)}...</td>
+                        <td class="p-4">${nickname}</td>
+                        <td class="p-4 text-gray-600 font-medium">UID721023</td>
+                        <td class="p-4">${phone}</td>
+                        <td class="p-4">${pair.split('/')[0]}</td>
+                        <td class="p-4 font-medium">${pair}</td>
+                        <td class="p-4 ${type === '开多' ? 'text-green-500' : 'text-red-500'} font-medium">${type}</td>
+                        <td class="p-4">${leverage}</td>
+                        <td class="p-4">市价单</td>
+                        <td class="p-4">${positionSizeUSDT.toLocaleString()}</td>
+                        <td class="p-4 font-medium">${quantity}</td>
+                        <td class="p-4">逐仓</td>
+                        <td class="p-4">${margin.toLocaleString()}</td>
+                        <td class="p-4">${entryPrice.toFixed(priceDecimals)}</td>
+                        <td class="p-4">${exitPrice.toFixed(priceDecimals)}</td>
+                        <td class="p-4 ${pnlValue >= 0 ? 'text-green-500' : 'text-red-500'} font-medium">${pnlValue >= 0 ? '+' : ''}${pnlValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="p-4">已平仓</td>
+                        <td class="p-4">${fee}</td>
+                        <td class="p-4 ${parseFloat(fundingFee) >= 0 ? 'text-green-500' : 'text-red-500'}">${parseFloat(fundingFee) >= 0 ? '+' : ''}${fundingFee}</td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+
+        initTable();
+    </script>
+</body>
+</html>
